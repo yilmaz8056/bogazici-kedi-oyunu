@@ -1,6 +1,8 @@
-# 🐾 Boğaziçi Pati Vakti - Boğaziçi Üniversitesi Kedi Besleme Oyunu (Mobil & Görsel Pro Sürüm)
+# 🐾 Boğaziçi Pati Vakti - Boğaziçi Üniversitesi Kedi Besleme Oyunu
 
-Boğaziçi Üniversitesi kampüsünde geçen, öğrencilerin efsanevi kampüs kedilerini beslediği, sevdiği, fotoğrafladığı ve finallere hazırlanırken kedi mırlamasıyla stres attığı profesyonel simülasyon oyunu.
+Boğaziçi Üniversitesi kampüsünde geçen, öğrencilerin efsanevi kampüs kedilerini beslediği, sevdiği, fotoğrafladığı ve finallere hazırlanırken kedi mırlamasıyla stres attığı profesyonel mobil simülasyon oyunu.
+
+🌐 **Canlı Oyna (GitHub Pages):** [https://yilmaz8056.github.io/bogazici-kedi-oyunu/](https://yilmaz8056.github.io/bogazici-kedi-oyunu/)
 
 ---
 
@@ -19,7 +21,7 @@ Boğaziçi Üniversitesi kampüsünde geçen, öğrencilerin efsanevi kampüs ke
   * **Manzara**: Boğaziçi Köprüsü silüeti, ışıltılı Boğaz suları, tarihi taş korkuluklar ve uçuşan martılar.
   * **Güney Çimler**: Albert Long Hall saat kulesi, yemyeşil çim tepeleri ve çiçekler.
   * **Aptullah Kuran Kütüphanesi**: Ahşap kitap rafları ve yeşil camlı kütüphane çalışma lambası ışığı.
-  * **Kuzey Kampüs & Yemekhane**: Petek binasının ikonik geometrik cephesi.
+  * **Kuzey Kampüs & Yemekhane**: Petek binasının ikonik geometrik cephe pencereleri.
 * **Günün Zaman Döngüsü**:
   * Gündüz güneşi, efsanevi Boğaz gün batımı ve gece kütüphane yıldızları.
 * **Ayrıntılı & Karakteristik Kedi Çizimleri**:
@@ -35,4 +37,5 @@ Boğaziçi Üniversitesi kampüsünde geçen, öğrencilerin efsanevi kampüs ke
 ---
 
 ### 🚀 Nasıl Oynanır?
-* [`index.html`](file:///c:/Users/yilma/OneDrive/Masaüstü/deneme/bogazici-kedi-oyunu/index.html) dosyasını herhangi bir mobil veya masaüstü tarayıcıda açmanız yeterlidir.
+* Doğrudan tarayıcınızda veya telefonunuzda oynamak için: [https://yilmaz8056.github.io/bogazici-kedi-oyunu/](https://yilmaz8056.github.io/bogazici-kedi-oyunu/)
+* Ya da projeyi klonlayıp `index.html` dosyasını açabilirsiniz.
