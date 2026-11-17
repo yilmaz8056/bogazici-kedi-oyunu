@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Boğaziçi Pati Vakti - Boğaziçi Üniversitesi Kedi Besleme Oyunu</title>
+  <meta name="description" content="Boğaziçi Üniversitesi kampüsünde geçen, öğrencilerin efsanevi kampüs kedilerini besleyip sevdiği profesyonel mobil simülasyon oyunu.">
+
+  <!-- Mobil PWA & iOS Kurulum Etiketleri -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Pati Vakti">
+  <meta name="theme-color" content="#0b2545">
+  <link rel="manifest" href="manifest.json">
+
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐾</text></svg>">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐾</text></svg>">
+
+  <!-- Google Fonts & Font Awesome 6 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body id="app-root" data-time="sunset">
+  <div class="app-container">
+
+    <!-- Üst Başlık & BUCARD HUD Barı (Kompakt & Mobil Uyumlu) -->
+    <header class="boun-header">
+      <div class="header-main-row">
+        <!-- Logo & İsim -->
+        <div class="brand-section">
+          <div class="brand-logo-icon">
+            <i class="fa-solid fa-cat"></i>
+          </div>
+          <div class="brand-text">
+            <h1>Boğaziçi Pati Vakti</h1>
+            <span>Kampüs Kedileri Oyunu</span>
+          </div>
+        </div>
+
+        <!-- Kontrol Araçları (Zaman, Lofi, Ses) -->
+        <div class="header-controls">
+          <button id="time-toggle-btn" class="time-btn" title="Günün Saatini Değiştir" aria-label="Günün Saatini Değiştir">
+            <i class="fa-solid fa-cloud-sun"></i> <span class="desktop-only-txt">Gün Batımı</span>
+          </button>
+          <button id="bgm-toggle-btn" class="icon-control-btn" title="Kampüs Lofi Müziğini Aç/Kapat" aria-label="Müzik">
+            <i class="fa-solid fa-music"></i>
+          </button>
+          <button id="sound-toggle-btn" class="icon-control-btn" title="Kedi ve Efekt Seslerini Kapat" aria-label="Ses">
+            <i class="fa-solid fa-volume-high"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Oyuncu HUD İstatistik Çubuğu -->
+      <div class="hud-stats-group">
+        <div class="hud-chip hud-coins" title="Pati Puanınız">
+          <i class="fa-solid fa-gem"></i>
+          <span id="hud-coins-val">160 Puan</span>
+        </div>
+
+        <div class="hud-chip stress-meter" title="Öğrenci Stresi (Kedi sevdikçe azalır)">
+          <i class="fa-solid fa-brain" style="color: #e76f51;"></i>
+          <span>Stres: <strong id="hud-stress-val">%45</strong></span>
+          <div class="stress-bar-track">
+            <div id="hud-stress-bar-fill" class="stress-bar-fill" style="width: 45%;"></div>
+          </div>
+        </div>
+
+        <div class="hud-chip dept-chip" id="hud-dept-badge" title="Öğrencinin Bölümü">
+          CmpE
+        </div>
+      </div>
+    </header>
+
+    <!-- Kampüs Mekan Gezintisi (Hızlı Kaydırma Tableri) -->
+    <nav class="campus-nav-bar" id="location-tabs" aria-label="Boğaziçi Kampüs Mekanları">
+      <!-- JavaScript tarafından dinamik oluşturulur -->
+    </nav>
+
+    <!-- Ana Oyun Sahnesi ve Yan Panel -->
+    <main class="game-main-content">
+
+      <!-- Sol Sütun: İnteraktif Sahne & Canvas -->
+      <section class="stage-card">
+        <!-- Mekan Başlığı & Canlı Kedi Durum Çubukları -->
+        <div class="stage-top-meta">
+          <div class="loc-title-wrap">
+            <h2 id="current-location-title"><i class="fa-solid fa-map-pin" style="color: #e76f51;"></i> Güney Çimler</h2>
+            <p id="current-location-sub">Albert Long Hall & Hamlin Önü</p>
+          </div>
+
+          <!-- Canlı Kedi Mini HUD (Mobilde Hemen Görünür) -->
+          <div class="stage-cat-live-hud" id="stage-cat-live-hud">
+            <div class="live-cat-title">
+              <strong id="stage-cat-name">Reis</strong>
+              <span id="stage-cat-level" class="mini-lvl-badge">Lv.1</span>
+            </div>
+            <div class="live-bars-row">
+              <div class="mini-stat" title="Tokluk">
+                <i class="fa-solid fa-bowl-food" style="color: #f39c12;"></i>
+                <div class="mini-track"><div id="stage-hunger-bar" class="mini-fill hunger" style="width: 40%;"></div></div>
+                <span id="stage-hunger-text">%40</span>
+              </div>
+              <div class="mini-stat" title="Mutluluk">
+                <i class="fa-solid fa-heart" style="color: #ff758c;"></i>
+                <div class="mini-track"><div id="stage-happiness-bar" class="mini-fill happy" style="width: 55%;"></div></div>
+                <span id="stage-happiness-text">%55</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- İnteraktif Kedi Sahnesi (Canvas) -->
+        <div class="stage-canvas-container" id="game-stage-wrapper">
+          <!-- Mekandaki Kediler Seçim Çipleri (Sol Üst) -->
+          <div class="stage-overlay-floating" id="location-cats-chips">
+            <!-- Dinamik Çipler -->
+          </div>
+
+          <!-- Polaroid Flaş Efekti -->
+          <div id="camera-flash-overlay" class="camera-flash"></div>
+
+          <!-- Kedi Çizim Tuvali (Retina & Touch Optimize) -->
+          <canvas id="cat-stage-canvas"></canvas>
+        </div>
+
+        <!-- Hızlı Aksiyon Araç Çubuğu (Canvas Altı - Kediyi Kapatmaz!) -->
+        <div class="stage-action-toolbar">
+          <button id="btn-take-photo" class="action-tool-btn" title="Kedinin Polaroid Fotoğrafını Çek">
+            <i class="fa-solid fa-camera"></i> <span>Şipşak Foto</span>
+          </button>
+          <button id="btn-study-chill" class="action-tool-btn" title="Mırlama eşliğinde kütüphanede/çimlerde ders çalış">
+            <i class="fa-solid fa-graduation-cap"></i> <span>Mırlamalı Çalış</span>
+          </button>
+          <button id="btn-quick-brush" class="action-tool-btn" title="Masaj tarağı ile kediyi tara">
+            <i class="fa-solid fa-brush"></i> <span>Masaj Tarağı</span>
+          </button>
+          <button id="btn-quick-laser" class="action-tool-btn" title="Kırmızı lazer ile kediyi oynat">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> <span>Kırmızı Lazer</span>
+          </button>
+        </div>
+
+        <!-- Alt Kısım: Mama Verme & Envanter Rafı -->
+        <div class="stage-inventory-shelf" id="inventory-section">
+          <div class="shelf-title">
+            <span><i class="fa-solid fa-basket-shopping"></i> Çantan & Besleme Seçenekleri</span>
+            <small>Dokunarak kediye ikram et</small>
+          </div>
+          <div class="inventory-items-row" id="cat-inventory-actions">
+            <!-- Çantadaki mamalar dinamik listelenir -->
+          </div>
+        </div>
+      </section>
+
+      <!-- Sağ Sütun: Kedi Profili & Öğrenci Menüsü -->
+      <aside class="game-sidebar">
+
+        <!-- Seçili Kedi Profili -->
+        <div class="sidebar-card">
+          <div class="cat-profile-header">
+            <h3 id="active-cat-name">Reis</h3>
+            <span class="cat-badge-pill" id="cat-friendship-level">Dostluk Lv.1</span>
+          </div>
+          <p class="cat-profile-title" id="active-cat-title">Manzara'nın Bilge Efendisi</p>
+
+          <!-- Kedi Durum Çubukları -->
+          <div class="cat-bars-group">
+            <div class="stat-bar-item">
+              <div class="stat-label-wrap">
+                <span><i class="fa-solid fa-bowl-food" style="color: #e67e22;"></i> Tokluk Durumu</span>
+                <span id="cat-hunger-text">%40</span>
+              </div>
+              <div class="stat-track">
+                <div id="cat-hunger-bar" class="stat-fill-hunger" style="width: 40%;"></div>
+              </div>
+            </div>
+
+            <div class="stat-bar-item">
+              <div class="stat-label-wrap">
+                <span><i class="fa-solid fa-heart" style="color: #ff758c;"></i> Mutluluk & Mırlama</span>
+                <span id="cat-happiness-text">%55</span>
+              </div>
+              <div class="stat-track">
+                <div id="cat-happiness-bar" class="stat-fill-happy" style="width: 55%;"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Kedi Sözü / Miyavlaması -->
+          <div class="cat-quote-box" id="active-cat-quote">
+            "Mroww... Boğaz bugün yine dalgalı, somonlu mamayı hak ettik genç."
+          </div>
+
+          <!-- Kedi Özellikleri & Sevdiği Şeyler -->
+          <div class="cat-meta-specs">
+            <div class="spec-line">
+              <span>Cins / Tür:</span>
+              <strong id="active-cat-breed">İri Sarman Tekir</strong>
+            </div>
+            <div class="spec-line">
+              <span>Favori Ziyafeti:</span>
+              <strong id="active-cat-fav" style="color: #e67e22;">Gurme Somonlu Yaş Mama</strong>
+            </div>
+            <div class="spec-line">
+              <span>Sevme İpucu:</span>
+              <span>Çene altını veya yanakları parmağınla okşa!</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hızlı İşlem Menü Butonları (Masaüstü) -->
+        <div class="sidebar-menu-grid">
+          <button id="btn-open-market" class="menu-action-btn" title="Hisarüstü Pet Shop & Kantin">
+            <i class="fa-solid fa-store"></i>
+            <span>Pet Shop</span>
+          </button>
+          <button id="btn-open-album" class="menu-action-btn" title="Kedi Fotoğrafları Albümü">
+            <i class="fa-solid fa-images"></i>
+            <span>Pati Albümü</span>
+          </button>
+          <button id="btn-open-quests" class="menu-action-btn" title="Öğrenci Görevleri & Başarımlar">
+            <i class="fa-solid fa-award"></i>
+            <span>Görevler</span>
+          </button>
+          <button id="btn-open-rules" class="menu-action-btn" onclick="document.getElementById('guide-modal').classList.add('active')" title="Nasıl Oynanır?">
+            <i class="fa-solid fa-circle-question"></i>
+            <span>Rehber</span>
+          </button>
+        </div>
+
+        <!-- BUCARD Öğrenci Kimliği & Bölüm Seçimi -->
+        <div class="student-card">
+          <div class="bucard-icon">
+            <i class="fa-solid fa-id-card"></i>
+          </div>
+          <div class="bucard-info">
+            <h4>BUCARD Öğrenci Kimliği</h4>
+            <select id="dept-selector" class="bucard-select" aria-label="Öğrenci Bölümü">
+              <!-- JS ile dolar -->
+            </select>
+          </div>
+        </div>
+
+      </aside>
+    </main>
+
+    <!-- Footer -->
+    <footer class="boun-footer">
+      <p>Boğaziçi Üniversitesi Öğrenci Kedi Besleme Simülatörü &bull; Güney Çimler, Manzara, Kütüphane, MAFM & Kuzey Yemekhane kedileri için sevgiyle geliştirildi 🐾</p>
+    </footer>
+
+  </div>
+
+  <!-- MOBİL ALT DOCK (BOTTOM DOCK BAR) -->
+  <nav class="mobile-bottom-dock" aria-label="Mobil Ana Menü">
+    <button class="mobile-dock-btn active" data-action="stage" type="button">
+      <i class="fa-solid fa-cat"></i>
+      <span>Pati</span>
+    </button>
+    <button class="mobile-dock-btn" data-action="locations" type="button">
+      <i class="fa-solid fa-map-location-dot"></i>
+      <span>Kampüs</span>
+    </button>
+    <button class="mobile-dock-btn" data-action="market" type="button">
+      <i class="fa-solid fa-store"></i>
+      <span>Pet Shop</span>
+    </button>
+    <button class="mobile-dock-btn" data-action="album" type="button">
+      <i class="fa-solid fa-images"></i>
+      <span>Albüm</span>
+    </button>
+    <button class="mobile-dock-btn" data-action="quests" type="button">
+      <i class="fa-solid fa-award"></i>
+      <span>Görevler</span>
+    </button>
+  </nav>
+
+  <!-- TOAST BİLDİRİMLERİ -->
+  <div id="game-toast-container" class="boun-toast-container" aria-live="polite"></div>
+
+  <!-- MODAL: MOBİL KAMPÜS MEKAN SEÇİCİ -->
+  <div id="locations-modal" class="game-modal" role="dialog" aria-modal="true">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-map-location-dot" style="color: #2a9d8f;"></i> Boğaziçi Kampüs Mekanları</h3>
+        <button class="close-modal-btn" aria-label="Kapat"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-scrollable">
+        <p style="font-size:0.84rem; color:var(--text-muted); margin-bottom:8px;">Gitmek istediğin kampüs mekanına dokun:</p>
+        <div id="mobile-locations-grid" class="mobile-loc-list">
+          <!-- JS doldurur -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: HİSARÜSTÜ PET SHOP -->
+  <div id="market-modal" class="game-modal" role="dialog" aria-modal="true">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-shop" style="color: #e67e22;"></i> Hisarüstü Pet Shop & Kantin</h3>
+        <button class="close-modal-btn" aria-label="Kapat"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-scrollable">
+        <div class="market-header-bar">
+          <span><i class="fa-solid fa-wallet"></i> Bakiyen:</span>
+          <span id="market-player-balance">160 BÜ-Puan</span>
+        </div>
+        <div id="market-item-list" style="display:flex; flex-direction:column; gap:10px;">
+          <!-- JS doldurur -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: GÖREVLER & BAŞARIMLAR -->
+  <div id="quests-modal" class="game-modal" role="dialog" aria-modal="true">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-trophy" style="color: #f4a261;"></i> Görevler & Başarımlar</h3>
+        <button class="close-modal-btn" aria-label="Kapat"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-scrollable">
+        <h4 style="font-size:0.95rem; color:#0b2545; margin-bottom:4px;"><i class="fa-solid fa-list-check"></i> Aktif Görevler</h4>
+        <div id="quests-list-container" style="display:flex; flex-direction:column; gap:10px;">
+          <!-- JS doldurur -->
+        </div>
+
+        <h4 style="font-size:0.95rem; color:#0b2545; margin-top:14px; margin-bottom:4px;"><i class="fa-solid fa-medal"></i> Rozetler & Başarımlar</h4>
+        <div id="achievements-list-container" style="display:flex; flex-direction:column; gap:10px;">
+          <!-- JS doldurur -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: POLAROID FOTOĞRAF ALBÜMÜ -->
+  <div id="album-modal" class="game-modal" role="dialog" aria-modal="true">
+    <div class="modal-dialog" style="max-width: 750px;">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-camera-retro" style="color: #e76f51;"></i> Şipşak Pati Albümü</h3>
+        <button class="close-modal-btn" aria-label="Kapat"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-scrollable">
+        <p style="font-size:0.84rem; color:#64748b;">Kampüste 'Şipşak' butonuna basarak yakaladığın unutulmaz kedi anları burada toplanır.</p>
+        <div id="album-photo-grid" class="album-grid">
+          <!-- Fotoğraflar JS ile buraya basılır -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: NASIL OYNANIR REHBERİ -->
+  <div id="guide-modal" class="game-modal" role="dialog" aria-modal="true">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-graduation-cap" style="color: #2a9d8f;"></i> Oyun Rehberi</h3>
+        <button class="close-modal-btn" aria-label="Kapat"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-scrollable" style="font-size:0.88rem; line-height:1.6; color:#334155;">
+        <h4 style="color:#0b2545; margin-top:4px;">🐾 1. Kedileri Sevme & Kaşıma</h4>
+        <p>Parmağınızla kedinin çene altını, kulak arkasını veya yanaklarını okşayın. Kediniz mırıldanmaya başlayacak, stresi sıfırlayacak ve arkadaşlık XP'si kazandıracaktır. Ancak dikkat: Bazı kedilerin göbeğine dokunursanız patileyebilir!</p>
+
+        <h4 style="color:#0b2545; margin-top:10px;">🍗 2. Doğru Mamayı İkram Etme</h4>
+        <p>Her Boğaziçi kedisinin damak tadı farklıdır! Örneğin Manzara'daki Reis <em>Gurme Somonlu Yaş Mama</em>'ya bayılırken, Kuzey Yemekhane'deki Piramit ise <em>Haşlanmış Tavuk</em> peşindedir. Favori mamayı verdiğinizde ekstra Pati Puanı kazanırsınız.</p>
+
+        <h4 style="color:#0b2545; margin-top:10px;">🏪 3. Hisarüstü Pet Shop</h4>
+        <p>Kazandığınız puanlarla Hisarüstü Pet Shop'tan taze mamalar, kedi nanesi, masaj tarağı ve lazer oyuncağı satın alabilirsiniz. İktisat (Econ) öğrencileri %20 indirim avantajına sahiptir!</p>
+
+        <h4 style="color:#0b2545; margin-top:10px;">📸 4. Polaroid Fotoğraf ve Mırlamalı Ders Çalışma</h4>
+        <p>Kedilerin fotoğraflarını çekip albümünüzü doldurun. Sınav haftasındaysanız "Mırlamalı Çalış" modunu açarak kedinizin huzurlu mırlaması eşliğinde ders çalışıp stresinizi eritin.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scriptler -->
+  <script src="data.js"></script>
+  <script src="audio.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
